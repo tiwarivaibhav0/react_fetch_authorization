@@ -30,7 +30,7 @@ function App() {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          localStorage.setItem("apiKey", data.data.token);
+          sessionStorage.setItem("apiKey", data.data.token);
           alert("Welcome admin");
           navigate("/dashboard");
         } else {
