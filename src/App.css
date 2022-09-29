@@ -40,24 +40,56 @@ input,button{
   margin: 10px;
   height: 35px;
 }
-button{
-  background-color: rgb(219, 243, 219);
+.logo{
+  text-align: center;
+  font-size: 25px;
+  margin-top: 10px;
+  font-weight: bold;
 }
 
-.dashboard{
-  display: flex;
-  margin: auto;
-  width: 80%;
-  margin-top: 6%;
-  justify-content: space-around;
-}
-.dashboard div{
+/* .dashboard{
+ font-size: 20px;
+} */
+/* .dashboard div{
  width: 30vw;
  background-color: #282c34;
  color: white;
  text-align: center;
-}
+} */
 .logout{
   text-align: end;
   margin-right: 5%;
+}
+
+.form{
+  /* background-color: #282c34; */
+  width: 40%;
+
+  margin: auto;
+  margin-top: 5%;
+  border: 2px solid red;
+  padding: 6%;
+
+}
+body{
+  background-color: #eee;
+}
+
+h2{
+  margin-top: 25px;
+  color: red;
+}
+button{
+  margin-left: 20px;
+}
+select{
+  text-align: left;
+  
+}
+.btns>*{
+  padding-top: 20px;
+
+}
+.btns>span{
+  margin: 10px;
 }
