@@ -1,17 +1,14 @@
 import {
-  Badge,
-  Breadcrumbs,
   Button,
   Card,
   DataTable,
   Frame,
   Icon,
-  Link,
   Page,
   Select,
-  useBreakpoints,
+  TextField,
 } from "@shopify/polaris";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./App.css";
 import { ArrowLeftMinor } from "@shopify/polaris-icons";
@@ -20,17 +17,18 @@ import { Loading } from "@shopify/polaris";
 
 export const Dashboard = () => {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState("Equals");
   const [page, setPage] = useState(1);
   const [selected2, setSelected2] = useState("10");
   const [total, setTotal] = useState("Loading....");
   const [loading, setLoading] = useState(false);
 
-  const handleSelectChange = useCallback((value) => setSelected(value), []);
-
   const options = [
-    { label: "Equals", value: "Equals" },
-    { label: "Not Equals", value: "Not Equals" },
+    { label: "Equals", value: "1" },
+    { label: "Not Equals", value: "2" },
+    { label: "Contains", value: "3" },
+    { label: "Does Not Contains", value: "4" },
+    { label: "Starts With", value: "5" },
+    { label: "Ends With", value: "6" },
   ];
 
   const handleSelectChange2 = useCallback((value) => setSelected2(value), []);
@@ -40,52 +38,49 @@ export const Dashboard = () => {
     { label: 20, value: "20" },
     { label: 30, value: "30" },
   ];
-  const rows = [
-    [
-      <Select
-        options={options}
-        onChange={handleSelectChange}
-        value={selected}
-      />,
-      <Select
-        options={options}
-        onChange={handleSelectChange}
-        value={selected}
-      />,
-      <Select
-        options={options}
-        onChange={handleSelectChange}
-        value={selected}
-      />,
-      <Select
-        options={options}
-        onChange={handleSelectChange}
-        value={selected}
-      />,
-      <Select
-        options={options}
-        onChange={handleSelectChange}
-        value={selected}
-      />,
-      <Select
-        options={options}
-        onChange={handleSelectChange}
-        value={selected}
-      />,
-      <Select
-        options={options}
-        onChange={handleSelectChange}
-        value={selected}
-      />,
-      <Select
-        options={options}
-        onChange={handleSelectChange}
-        value={selected}
-      />,
-    ],
-  ];
-  const [selectedRows, setSelectedRows] = useState(rows);
+  const [firstrow, setfirstrow] = useState(Array(8).fill("1"));
+  const [firstrowInp, setfirstrowInp] = useState([
+    ["user_id"],
+    ["catalog"],
+    ["username"],
+    ["shops.email"],
+    ["shopify_plan"],
+    ["updated_at"],
+    ["created_at"],
+    ["shop_url"],
+  ]);
+  console.log(firstrow);
+  const rows = useMemo(() => {
+    let tempFirstRow = [];
+    Array(8)
+      .fill(0)
+      .map((item, i) => {
+        let firstRowContent = (
+          <>
+            {" "}
+            <Select
+              options={options}
+              onChange={(d) => {
+                firstrow[i] = d;
+                setfirstrow([...firstrow]);
+              }}
+              value={firstrow[i]}
+            />
+            <TextField
+              value={firstrowInp[i][1]}
+              onChange={(e) => {
+                firstrowInp[i][1] = e;
+                setfirstrowInp([...firstrowInp]);
+              }}
+            />{" "}
+          </>
+        );
+        tempFirstRow.push(firstRowContent);
+      });
+    return tempFirstRow;
+  });
 
+  const [selectedRows, setSelectedRows] = useState([]);
   const fetchhandler = () => {
     setLoading(true);
     var data = {
@@ -98,8 +93,11 @@ export const Dashboard = () => {
     for (let k in data) {
       url.searchParams.append(k, data[k]);
     }
-
-    // console.log(url);
+    firstrowInp.map((it, i) => {
+      if (it[1])
+        url.searchParams.append(`filter[${it[0]}][${firstrow[i]}]`, it[1]);
+    });
+    console.log(url);
     fetch(url, {
       headers: {
         accept: "application/json",
@@ -108,30 +106,40 @@ export const Dashboard = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data.data.count);
-        setTotal(data.data.count);
+        // console.log(data.data.count);
         if (data.success) {
-          let tempRow = [...rows];
+          setTotal(data.data.count);
+
+          let tempRow = [];
           data.data.rows.map((it, i) => {
-            let tempArr = [];
-            tempArr.push(it.user_id);
-            tempArr.push(it.catalog);
-            tempArr.push(it.username);
-            tempArr.push(it.email);
-            tempArr.push(it.shopify_plan);
-            tempArr.push(it.updated_at);
-            tempArr.push(it.created_at);
-            tempArr.push(it.shop_url);
-            tempRow.push(tempArr);
+            tempRow.push([
+              it.user_id,
+              it.catalog,
+              it.username,
+              it.email,
+              it.shopify_plan,
+              it.updated_at,
+              it.created_at,
+              it.shop_url,
+            ]);
           });
           setSelectedRows([...tempRow]);
           setLoading(false);
+        } else {
+          document.write("Error: Couldn't process your request");
+          //
         }
       });
   };
   useEffect(() => {
-    fetchhandler();
-  }, [page, selected2]);
+    const timer = setTimeout(() => {
+      fetchhandler();
+    }, 1000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [page, selected2, firstrowInp]);
+
   var res;
   return (
     <>
@@ -213,7 +221,7 @@ export const Dashboard = () => {
                 "Created at",
                 "Shops myshopify domain",
               ]}
-              rows={selectedRows}
+              rows={[rows, ...selectedRows]}
             />
             {loading && (
               <>

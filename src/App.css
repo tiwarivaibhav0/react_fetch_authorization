@@ -39,6 +39,10 @@
 input,button{
   margin: 10px;
   height: 35px;
+  text-align: center;
+}
+select{
+  text-align: center;
 }
 .logo{
   text-align: center;
@@ -92,4 +96,9 @@ select{
 }
 .btns>span{
   margin: 10px;
+}
+a{
+  text-decoration: none;
+  border: 1px solid blueviolet;
+  padding: 1%;
 }
